@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  - name: kafka_trading
+    database: BRONZE
+    schema: TRADING
+    description: "Immutable Apache Iceberg tables populated via Kafka Connect Snowpipe Streaming."
+    tables:
+      - name: trade_events
+        description: "Raw equity order execution events landed from the trading.executions.v1 topic."
+        columns:
+          - name : trade_id
+            description: "Natural event unique identifier"
+            tests:
+              - not_null
+      - name: traders_cdc
