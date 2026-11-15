@@ -38,8 +38,11 @@ models:
     intermediate:
       +schema: INTERMEDIATE
     marts:
-      database: GOLD
+      +database: GOLD
       core:
         +schema: CORE
       agg:
         +schema: AGGREGATE
+    semantic:
+      +database: GOLD
+      +schema: SEMANTIC

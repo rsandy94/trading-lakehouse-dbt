@@ -1,6 +1,9 @@
+{#- delete+insert on trade_date replaces every day in the lookback window as a whole.
+    A merge on liquidity_metric_sk would leave stale rows behind when a trader changes tier. -#}
 {{ config(
     materialized='incremental',
-    unique_key='liquidity_metric_sk',
+    incremental_strategy='delete+insert',
+    unique_key='trade_date',
     table_format='iceberg',
     external_volume='ext_trading_s3',
     base_location_root='gold/agg/agg_daily_tier_liquidity',
@@ -16,19 +19,12 @@ with trades as (
     {% endif %}
 ),
 
-traders as (
-    select
-        trader_sk,
-        trader_tier,
-        account_country
-    from {{ ref('dim_traders') }}
-),
-
 aggregated as (
     select
         -- Aggregation Grain: 1 row per (trade_date + trader_tier + order_side)
+        -- trader_tier comes from the fact row, so the fact table and this rollup always agree.
         f.trade_date,
-        coalesce(d.trader_tier, f.trader_tier) as trader_tier,
+        f.trader_tier,
         f.order_side,
 
         -- Volume & Participation Counts
@@ -50,8 +46,6 @@ aggregated as (
         ) as average_settled_trade_notional
 
     from trades f
-    left join traders d
-        on f.trader_sk = d.trader_sk
     group by 1, 2, 3
 ),
 
