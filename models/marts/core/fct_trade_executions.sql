@@ -54,8 +54,8 @@ enriched_facts as (
         end as is_verified_settled_trade,
 
         t._kafka_ingested_at::timestamp_ntz(6) as _kafka_ingested_at,
-        -- Date the pipeline consumed the event from the stream. Stable across the 3-day
-        -- lookback re-merges, unlike current_date().
+        -- Date the pipeline consumed this version of the event from the stream. Unlike
+        -- current_date(), it does not change when the 3-day lookback re-merges the row.
         cast(t._stream_consumed_at as date) as ingested_date,
         current_timestamp()::timestamp_ntz(6) as dbt_updated_at
 

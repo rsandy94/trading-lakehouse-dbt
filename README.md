@@ -14,7 +14,7 @@ Dagster runs this project whenever the Bronze stream has new data. The orchestra
 | Gold | `dim_traders` (hash-diff merge), `fct_trade_executions` (3-day lookback merge), `agg_daily_tier_liquidity` (daily rollup) | Incremental Iceberg tables |
 | Platinum | `sem_trading_liquidity`: tables, relationship, dimensions, metrics and synonyms for BI tools and Cortex agents | Snowflake semantic view |
 
-Every model is tagged `trading_pipeline`; Dagster selects on that tag.
+Every Bronze-to-Gold model is tagged `trading_pipeline`, and Dagster selects on that tag. The semantic view is not tagged: it is a logical layer over Gold, so new data shows up in it without a rebuild. Rebuild it only when its definition changes.
 
 ## Setup
 
@@ -32,8 +32,9 @@ Every model is tagged `trading_pipeline`; Dagster selects on that tag.
 4. Create the external volume `ext_trading_s3`, the Bronze table and its stream. The Iceberg models write to `ext_trading_s3`.
 5. Build:
    ```bash
-   dbt build --select tag:trading_pipeline
+   dbt build --select tag:trading_pipeline+
    ```
+   The trailing `+` also builds the semantic view, which sits downstream of the tagged models.
 
 ## Semantic view
 
