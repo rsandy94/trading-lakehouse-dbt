@@ -16,7 +16,8 @@ with raw_events as (
         executed_at as executed_at,
         cast(_kafka_partition as number(10, 0)) as _kafka_partition,
         cast(_kafka_offset as number(19, 0)) as _kafka_offset,
-        _kafka_ingested_at as _kafka_ingested_at
+        _kafka_ingested_at as _kafka_ingested_at,
+        _stream_consumed_at
     from  {{ ref('stg_trade_events_cdc') }}
 ),
 
